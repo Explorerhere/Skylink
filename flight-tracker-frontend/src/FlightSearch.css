@@ -1,0 +1,158 @@
+/* Base styles */
+* {
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  body {
+    background-color: #edf2f7;
+    margin: 0;
+    font-size: 16px;
+  }
+  .flightDetailHeader {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #333;
+  }
+  
+  .flightDetailContent {
+    margin-left: 10px;
+    font-size: 1rem;
+  }
+  
+  .weatherInfo {
+    display: flex;
+    align-items: center;
+    gap: 5px; 
+  }
+  
+  
+  
+  /* Flight Search Container */
+  .flightSearch-container {
+    position: relative;
+    margin: 3rem auto;
+    padding: 2rem;
+    max-width: 900px;
+    border-radius: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    font-size: 1rem;
+  }
+  
+  /* Input and Button Styles */
+  .flightSearch-input {
+    padding: 0.5rem 1rem;
+    margin-right: 1rem;
+    border: 2px solid #cccccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    width: calc(100% - 2rem); /* Full width - margin */
+  }
+  
+  .flightSearch-button {
+    padding: 0.5rem 2rem;
+    background-color: #1a73e8;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+  }
+  
+  .flightSearch-button:hover {
+    background-color: #0c5bcc;
+  }
+  
+  /* Flight Details and Error Message */
+  .flightDetails, .errorMessage {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 5px;
+  }
+  
+  .errorMessage {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+  
+  .flightDetails {
+    background-color: #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  /* Add to Watchlist Button inside Flight Details */
+  .addToWatchlist-button {
+    padding: 0.5rem 1rem;
+    background-color: #48bb78;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+  }
+  
+  .addToWatchlist-button:hover {
+    background-color: #38a169;
+  }
+  
+  /* Flight Status Styles */
+  .flightStatus-container {
+    background-color: #4a5568;
+    color: white;
+    margin-top: 1rem;
+    padding: 2rem;
+    border-radius: 10px;
+  }
+  
+  .flightStatus-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .flightStatus-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+  
+  .flightStatus-section {
+    background-color: #2d3748;
+    padding: 1rem;
+    border-radius: 5px;
+  }
+  
+  /* Reusable utility classes */
+  .text-success {
+    color: #48bb78;
+  }
+  
+  .text-error {
+    color: #e53e3e;
+  }
+  
+  .text-warning {
+    color: #ed8936;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .flightSearch-input, .flightSearch-button {
+      width: 100%;
+      margin: 0.5rem 0;
+    }
+    
+    .flightDetails {
+      flex-direction: column;
+    }
+  }
+  

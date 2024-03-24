@@ -1,0 +1,73 @@
+/* Watchlist.css */
+
+.watchlist-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.95); /* Slightly transparent white */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px); /* For glassmorphism effect */
+    border: 1px solid rgba(255, 255, 255, 0.6); /* Light white border for depth */
+  }
+  
+  .watchlist-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    margin: 1rem 0;
+    border-bottom: 1px solid #eaeaea;
+    transition: background-color 0.3s ease;
+  }
+  
+  .watchlist-item:last-child {
+    border-bottom: none;
+  }
+  
+  .watchlist-item:hover {
+    background-color: rgba(0, 123, 255, 0.1); /* Light hover effect */
+  }
+  
+  .flight-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .flight-details strong {
+    font-weight: 600;
+  }
+  
+  .remove-button {
+    padding: 0.5rem 1rem;
+    background-color: #dc3545; /* Bootstrap's danger color */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  .remove-button:hover {
+    background-color: #c82333; /* A darker shade for hover effect */
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .watchlist-container {
+      width: 90%;
+      margin-top: 1rem;
+    }
+  
+    .watchlist-item {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .remove-button {
+      align-self: center;
+      margin-top: 0.5rem;
+    }
+  }
+  

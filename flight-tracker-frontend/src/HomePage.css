@@ -1,0 +1,13 @@
+.backgroundImage {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-image: url('./Assests/stenza.png'); /* Update this path */
+  background-size: cover;
+  background-position: center;
+  z-index: -1;
+  filter: blur(8px);
+  -webkit-filter: blur(8px);
+}

@@ -1,0 +1,215 @@
+
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Box, TextField, Button, CircularProgress, Typography, Card, CardContent, Grid } from '@mui/material';
+import FlightMap from './FlightMap'; // Make sure this component is implemented to display the map
+import Particles from 'react-tsparticles';
+
+const AVIATION_EDGE_API_KEY = '51e895-9bde28'; // Replace with your real API key
+
+function FlightSearch() {
+  const [flightNumber, setFlightNumber] = useState('');
+  const [flightData, setFlightData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  // Particles.js options
+  const particlesOptions = {
+    fpsLimit: 60,
+    interactivity: {
+      events: {
+        onClick: {
+          enable: true,
+          mode: "push",
+        },
+        resize: true,
+      },
+      modes: {
+        bubble: {
+          distance: 400,
+          duration: 2,
+          opacity: 0.8,
+          size: 40,
+        },
+        push: {
+          quantity: 4,
+        },
+        repulse: {
+          distance: 200,
+          duration: 0.4,
+        },
+      },
+    },
+    particles: {
+      color: {
+        value: "#ffffff",
+      },
+      links: {
+        color: "#ffffff",
+        distance: 150,
+        enable: true,
+        opacity: 0.5,
+        width: 1,
+      },
+      collisions: {
+        enable: true,
+      },
+      move: {
+        direction: "none",
+        enable: true,
+        outModes: {
+          default: "bounce",
+        },
+        random: false,
+        speed: 2,
+        straight: false,
+      },
+      number: {
+        density: {
+          enable: true,
+          area: 800,
+        },
+        value: 80,
+      },
+      opacity: {
+        value: 0.5,
+      },
+      shape: {
+        type: "circle",
+      },
+      size: {
+        value: { min: 1, max: 5 },
+      },
+    },
+    detectRetina: true,
+  };
+
+  // Function to fetch the full name of an airport by its IATA code
+  const fetchAirportName = async (iataCode) => {
+    try {
+      const url = `https://aviation-edge.com/v2/public/airportDatabase?codeIataAirport=${iataCode}&key=${AVIATION_EDGE_API_KEY}`;
+      const response = await axios.get(url);
+      if (response.data && response.data.length > 0) {
+        return response.data[0].nameAirport;
+      }
+    } catch (error) {
+      console.error('Failed to fetch airport name:', error);
+      return iataCode;
+    }
+  };
+
+  // When flightData is updated, fetch full names for departure and arrival airports
+  useEffect(() => {
+    const fetchFullNames = async () => {
+      if (flightData) {
+        const departureFullName = await fetchAirportName(flightData.departure.iataCode);
+        const arrivalFullName = await fetchAirportName(flightData.arrival.iataCode);
+        setFlightData((prevData) => ({
+          ...prevData,
+          departure: { ...prevData.departure, fullName: departureFullName },
+          arrival: { ...prevData.arrival, fullName: arrivalFullName },
+        }));
+      }
+    };
+    fetchFullNames();
+  }, [flightData]);
+
+  const handleSearch = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await axios.get(`http://localhost:5000/searchFlight?flightNumber=${flightNumber}`);
+      const data = response.data.length > 0 ? response.data[0] : null;
+      setFlightData(data);
+    } catch (err) {
+      setError('Failed to fetch flight information.');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Box sx={{ flexGrow: 1, position: 'relative', m: 3 }}>
+      <Particles
+        id="tsparticles"
+        options={particlesOptions}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: -1, // Ensure particles are in the background
+        }}
+      />
+      <Box sx={{ position: 'relative', zIndex: 1 }}> {/* This Box will hold the content and should be above the particles */}
+        <Typography variant="h4" gutterBottom>
+          Flight Search
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <TextField
+            label="Flight Number"
+            variant="outlined"
+            value={flightNumber}
+            onChange={(e) => setFlightNumber(e.target.value)}
+            fullWidth
+          />
+          <Button
+            variant="contained"
+            onClick={handleSearch}
+            disabled={isLoading}
+            endIcon={isLoading ? <CircularProgress size={20} /> : null}
+          >
+            {isLoading ? 'Searching...' : 'Search Flight'}
+          </Button>
+        </Box>
+      {error && <Typography color="error" sx={{ mt: 2 }}>{error}</Typography>}
+      {flightData && (
+        <Card sx={{ mt: 4 }}>
+          <CardContent>
+            <Typography variant="h5" component="div" gutterBottom>
+              Flight Details
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <Typography><strong>Flight Number:</strong> {flightData.flight.iataNumber}</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography><strong>Departure Airport:</strong> {flightData.departure.fullName || flightData.departure.iataCode} ({flightData.departure.icaoCode})</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography><strong>Arrival Airport:</strong> {flightData.arrival.fullName || flightData.arrival.iataCode} ({flightData.arrival.icaoCode})</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography><strong>Aircraft IATA Code:</strong> {flightData.aircraft.iataCode}</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography><strong>Registration Number:</strong> {flightData.aircraft.regNumber}</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography><strong>Airline:</strong> {flightData.airline.iataCode}</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography><strong>Status:</strong> {flightData.status}</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography><strong>Altitude:</strong> {flightData.geography.altitude} meters</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography><strong>Horizontal Speed:</strong> {flightData.speed.horizontal} km/h</Typography>
+              </Grid>
+            </Grid>
+            <FlightMap 
+              position={{ lat: flightData.geography.latitude, lng: flightData.geography.longitude }}
+              flightNumber={flightData.flight.iataNumber}
+              departure={flightData.departure.fullName || flightData.departure.iataCode}
+              arrival={flightData.arrival.fullName || flightData.arrival.iataCode}
+            />
+          </CardContent>
+        </Card>
+      )}
+    </Box>
+  </Box>
+  );
+}

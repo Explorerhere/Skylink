@@ -1,0 +1,8 @@
+{
+    "editor.cursorBlinking": "smooth",
+    "window.autoDetectColorScheme": true,
+    "workbench.colorCustomizations": {},
+    "workbench.colorTheme": "Visual Studio Dark",
+    "workbench.preferredDarkColorTheme": "Visual Studio Dark",
+    "workbench.preferredHighContrastColorTheme": "Default Dark+"
+}
