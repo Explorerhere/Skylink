@@ -12,6 +12,8 @@ const port = process.env.PORT || 5000;
 const apiKey = process.env.AVIATION_EDGE_API_KEY;
 const baseUrl = 'https://aviation-edge.com/v2/public/flights';
 const mongoDBUri = process.env.MONGODB_URI;
+const Twilio = require('twilio');
+const twilioClient = new Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 // MongoDB connection
 mongoose.connect(mongoDBUri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -109,19 +111,30 @@ app.get('/searchFlight', async (req, res) => {
 });
 app.post('/sendFlightDetailsSMS', async (req, res) => {
   const { phoneNumber, flightDetails } = req.body;
-
-  // Format your message with the flight details
-  const message = `Your flight ${flightDetails.flight.iataNumber} from ${flightDetails.departure.fullName} to ${flightDetails.arrival.fullName} is currently ${flightDetails.status}.`;
-
+  
+  // Basic validation
+  if (!phoneNumber || !flightDetails) {
+      return res.status(400).send({ error: 'Missing phoneNumber or flightDetails in the request body.' });
+  }
+  
   try {
-    await sendSMS(phoneNumber, message); // Assuming `sendSMS` is the function you've created to send SMS via Twilio
-    res.send('SMS sent successfully.');
+      const message = `Your flight ${flightDetails.flight.iataNumber} from ${flightDetails.departure.fullName} to ${flightDetails.arrival.fullName} is currently ${flightDetails.status}.`;
+      
+      const sentMessage = await twilioClient.messages.create({
+          body: message,
+          from: process.env.TWILIO_PHONE_NUMBER, // Your Twilio phone number in E.164 format, e.g., +1234567890
+          to: phoneNumber // Ensure the phone number is in E.164 format
+      });
+      
+      console.log(`Message sent successfully with SID: ${sentMessage.sid}`);
+      res.send({ message: 'SMS sent successfully.', sid: sentMessage.sid });
   } catch (error) {
-    console.error('Failed to send SMS:', error);
-    res.status(500).send('Failed to send SMS.');
+      console.error('Failed to send SMS:', error);
+      res.status(500).send({ error: 'Failed to send SMS due to an internal error.' });
   }
 });
 
+ 
 // Signup endpoint
 app.post('/signup', async (req, res) => {
   const { name, email, password, phoneNumber } = req.body;

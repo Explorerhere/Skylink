@@ -9,6 +9,8 @@ import Particles from 'react-tsparticles';
 import { Flight, WatchLater,Speed } from '@mui/icons-material';
 import database from './firebase-config';
 import GaugeChart from 'react-gauge-chart'
+import SendIcon from '@mui/icons-material/Send';
+
 const FlightSearch = () => {
   const [flightNumber, setFlightNumber] = useState('');
   const [flightData, setFlightData] = useState(null);
@@ -17,7 +19,9 @@ const FlightSearch = () => {
   const [addToWatchlistLoading, setAddToWatchlistLoading] = useState(false);
   const [watchlistResponse, setWatchlistResponse] = useState('');
   const [watchlist, setWatchlist] = useState([]);
-
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [smsStatus, setSmsStatus] = useState({ error: '', success: '' });
+  
   // States for departure and arrival coordinates and weather
   const [departureCoords, setDepartureCoords] = useState(null);
   const [arrivalCoords, setArrivalCoords] = useState(null);
@@ -29,7 +33,7 @@ const FlightSearch = () => {
   const [airportNamesCache, setAirportNamesCache] = useState({});
   const [airlineNamesCache, setAirlineNamesCache] = useState({});
   const [routeDetailsCache, setRouteDetailsCache] = useState({});
-
+  
 
 // Your speed value obtained from the flight data. It should not be multiplied or altered.
 let speedInKmH = flightData ? flightData.speed.horizontal:0; 
@@ -116,7 +120,31 @@ useEffect(() => {
 
   fetchAirlineFullName();
 }, [flightData, airlineNamesCache]);
+const sendFlightDetailsSMS = async () => {
+  if (!phoneNumber.trim() || !flightData) {
+      setSmsStatus({ error: 'Please enter a phone number and search for a flight first.', success: '' });
+      return;
+  }
 
+  setIsLoading(true);
+  try {
+      const response = await axios.post('http://localhost:5000/sendFlightDetailsSMS', {
+          phoneNumber,
+          flightDetails: flightData // Use `flightData` here
+      });
+
+      if (response.data && response.data.message === 'SMS sent successfully.') {
+          setSmsStatus({ success: 'SMS sent successfully!', error: '' });
+      } else {
+          throw new Error('Failed to send SMS');
+      }
+  } catch (error) {
+      setSmsStatus({ error: 'Failed to send SMS. Please try again.', success: '' });
+      console.error('Error sending SMS:', error);
+  } finally {
+      setIsLoading(false);
+  }
+};
 
 const fetchAirportName = async (iataCode) => {
   // Return the name from cache if it exists
@@ -376,7 +404,30 @@ useEffect(() => {
     <strong>Arrival Time:</strong> {routeDetailsCache[`${flightData.departure.iataCode}-${flightData.arrival.iataCode}`]?.arrivalTime}
   </Typography>
 </Grid>
-
+<Box sx={{ mt: 2 }}>
+    <TextField
+        label="Phone Number for SMS"
+        variant="outlined"
+        value={phoneNumber}
+        onChange={(e) => setPhoneNumber(e.target.value)}
+        fullWidth
+        margin="normal"
+    />
+    <Button
+        variant="contained"
+        onClick={sendFlightDetailsSMS}
+        disabled={isLoading}
+        startIcon={<SendIcon />}
+    >
+        Send Flight Details via SMS
+    </Button>
+    {smsStatus.error && (
+        <Typography color="error" sx={{ mt: 2 }}>{smsStatus.error}</Typography>
+    )}
+    {smsStatus.success && (
+        <Typography color="primary" sx={{ mt: 2 }}>{smsStatus.success}</Typography>
+    )}
+</Box>
 
               <FlightMap 
                 flightPosition={flightData ? { lat: flightData.geography.latitude, lng: flightData.geography.longitude } : undefined}
