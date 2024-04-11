@@ -4,22 +4,17 @@ import { Box, TextField, Button, CircularProgress, Typography, Card, CardContent
 import FlightMap from './FlightMap';
 import { Search } from '@mui/icons-material'; // Import Search icon
 import './FlightSearch.css';
-import { Divider } from '@chakra-ui/react'
-import Particles from 'react-tsparticles';
+
 import { Flight, WatchLater,Speed } from '@mui/icons-material';
-import database from './firebase-config';
-import GaugeChart from 'react-gauge-chart'
 import SendIcon from '@mui/icons-material/Send';
+import backgroundImage from './Assests/stenza.png'; // Ensure the path is correct
 
 const FlightSearch = () => {
   const [flightNumber, setFlightNumber] = useState('');
   const [flightData, setFlightData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [addToWatchlistLoading, setAddToWatchlistLoading] = useState(false);
-  const [watchlistResponse, setWatchlistResponse] = useState('');
-  const [watchlist, setWatchlist] = useState([]);
-  const [phoneNumber, setPhoneNumber] = useState('');
+ const [phoneNumber, setPhoneNumber] = useState('');
   const [smsStatus, setSmsStatus] = useState({ error: '', success: '' });
   
   // States for departure and arrival coordinates and weather
@@ -28,15 +23,13 @@ const FlightSearch = () => {
   const [departureWeather, setDepartureWeather] = useState(null);
   const [arrivalWeather, setArrivalWeather] = useState(null);
 
-  const maxSpeed = 1800; // Update this value if the maximum range of your gauge is different.
-  const AVIATION_EDGE_API_KEY = '51e895-9bde28'; 
+  const AVIATION_EDGE_API_KEY = 'f34fed-bff963'; 
   const [airportNamesCache, setAirportNamesCache] = useState({});
   const [airlineNamesCache, setAirlineNamesCache] = useState({});
   const [routeDetailsCache, setRouteDetailsCache] = useState({});
-  
+  // Somewhere in your component, where you want to display the graph
 
 // Your speed value obtained from the flight data. It should not be multiplied or altered.
-let speedInKmH = flightData ? flightData.speed.horizontal:0; 
 const fetchRouteDetails = async (departureIata, arrivalIata) => {
   const routeKey = `${departureIata}-${arrivalIata}`;
   
@@ -117,6 +110,7 @@ useEffect(() => {
       }
     }
   };
+  
 
   fetchAirlineFullName();
 }, [flightData, airlineNamesCache]);
@@ -283,42 +277,74 @@ useEffect(() => {
 
    return (
       <Container maxWidth="lg">
-        <Box sx={{
-          flexGrow: 1,
-          position: 'relative',
-          marginTop: 3,
-          padding: 3,
-          borderRadius: 3,
-          backgroundColor: 'background.paper',
-          boxShadow: 3
-        }}>
-          {/* Your Particles Component here */}
+         <Box sx={{ flexGrow: 1 }}>
+      <div style={{
+        position: 'fixed',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        zIndex: -1,
+        filter: 'blur(8px)',
+        WebkitFilter: 'blur(8px)',
+      }}></div>
+         
           <Box sx={{ position: 'relative', zIndex: 1 }}>
-            <Typography variant="h4" gutterBottom component="div" sx={{ fontWeight: 'bold', marginBottom: 3 }}>
+            <Typography variant="h4" gutterBottom component="div" sx={{ fontWeight: 'bold', marginBottom: 3 , color: 'skyblue'}}>
               Flight Search <Flight sx={{ verticalAlign: 'middle', fontSize: 'inherit' }} />
             </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 2 }}>
-              <TextField
-                label="Flight Number"
-                variant="outlined"
-                value={flightNumber}
-                onChange={(e) => setFlightNumber(e.target.value)}
-                fullWidth
-                InputProps={{
-                  endAdornment: isLoading ? <CircularProgress size={24} /> : <WatchLater sx={{ color: 'action.active', mr: 1, my: 0.5 }} />,
-                }}
-              />
-              <Button variant="contained" onClick={handleSearch} disabled={isLoading} startIcon={<Search />}>
-                Search
-              </Button>
-            </Box>
+            <Box
+  sx={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: 2,
+    marginBottom: 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)', // Adjust the alpha value as needed
+    padding: '1rem',
+    borderRadius: '0.5rem',
+    backdropFilter: 'blur(8px)',
+    transition: 'transform 0.3s ease-in-out',
+              '&:hover': {
+                transform: 'scale(1.05)',
+              }, // This gives a frosted glass effect
+  }}
+>
+  <TextField
+    label="Flight Number"
+    variant="outlined"
+    value={flightNumber}
+    onChange={(e) => setFlightNumber(e.target.value)}
+    fullWidth
+    InputProps={{
+      endAdornment: isLoading ? <CircularProgress size={24} /> : <WatchLater sx={{ color: 'action.active', mr: 1, my: 0.5 }} />,
+    }}
+  />
+  <Button variant="contained" onClick={handleSearch} disabled={isLoading} startIcon={<Search />}>
+    Search
+  </Button>
+</Box>
+
+
            {error && <Typography color="error" sx={{ mt: 2 }}>{error}</Typography>}
           {flightData && departureWeather && arrivalWeather && (
+      
             <Card sx={{ mt: 4 }}>
               <CardContent>
-              <Typography variant="h5" component="div" gutterBottom>
-        Flight Details
-      </Typography>
+              <Typography 
+  variant="h6" 
+  component="div" 
+  gutterBottom
+  sx={{ 
+    fontWeight: 'bold',
+    color: 'Gold', // This line makes the text bold
+  }}
+>
+  Flight Details
+</Typography>
+
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Typography variant="h6"><strong>Flight Number:</strong> {flightData?.flight.iataNumber}</Typography>
@@ -326,7 +352,7 @@ useEffect(() => {
 
         <Grid item xs={12} sm={6}>
     <Typography variant="h6" className="flightDetailHeader">
-      Departure Airport:
+      Departure Airport
     </Typography>
     <Typography variant="h6" className="flightDetailContent">{flightData?.departure.fullName || flightData?.departure.iataCode} ({flightData?.departure.icaoCode})
       {departureWeather && (
@@ -343,7 +369,7 @@ useEffect(() => {
   </Grid>
   <Grid item xs={12} sm={6} className="flightDetailSection">
     <Typography variant="h6" className="flightDetailHeader">
-      Arrival Airport:
+      Arrival Airport
     </Typography>
     <Typography variant="h6" className="flightDetailContent">
       {flightData?.arrival.fullName || flightData?.arrival.iataCode} ({flightData?.arrival.icaoCode})
@@ -379,7 +405,7 @@ useEffect(() => {
   </Typography>
 </Grid>
               <Grid item xs={12} sm={6}>
-                <Typography variant="h7"><strong>Airline iataCode:</strong> {flightData.airline.iataCode}</Typography>
+                <Typography variant="h7"><strong>Airline IATA Code:</strong> {flightData.airline.iataCode}</Typography>
               </Grid>
              
               <Grid item xs={12} sm={6}>
@@ -394,6 +420,7 @@ useEffect(() => {
     {flightData.speed.horizontal} km/h
   </Typography>
 </Grid>
+
 <Grid item xs={12} sm={6}>
   <Typography variant="h7">
     <strong>Departure Time:</strong> {routeDetailsCache[`${flightData.departure.iataCode}-${flightData.arrival.iataCode}`]?.departureTime}

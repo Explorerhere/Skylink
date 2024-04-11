@@ -4,19 +4,15 @@ import {
   Flex,
   Text,
   IconButton,
-  Button,
   Stack,
   Collapse,
-  Icon,
   Link,
   useDisclosure,
   Spacer,
   useBreakpointValue,
-  useColorModeValue,
 } from '@chakra-ui/react';
 import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
 import { Link as RouterLink } from 'react-router-dom';
-import AccountMenu from './AccountMenu'; // Update the path if necessary
 
 export default function NavBar() {
   const { isOpen, onToggle } = useDisclosure();
@@ -30,10 +26,10 @@ export default function NavBar() {
       rounded={'md'}
       _hover={{
         textDecoration: 'none',
-        bg: useColorModeValue('gray.200', 'gray.700'),
+        bg: 'red.500', // Red hover effect
       }}
-      color={useColorModeValue('gray.800', 'white')} // Set text color based on color mode
-      fontWeight="bold" // Set font weight to bold
+      color={'gold'} // Gold text
+      fontWeight="bold"
     >
       {children}
     </Link>
@@ -42,62 +38,59 @@ export default function NavBar() {
   return (
     <Box>
       <Flex
-        bg={'skyblue'} // Set background to sky blue
-        color={'gray.800'} // Set text color to dark gray
+        bg={'rgba(0, 0, 0, 0.5)'} // Semi-transparent black background
+        color={'gold'} // Gold text color
         minH={'60px'}
         py={{ base: 2 }}
         px={{ base: 4 }}
         align={'center'}
+        justifyContent={{ base: 'flex-start', md: 'space-between' }} // Adjust positioning for brand and nav items
       >
-        {/* Mobile menu button */}
-        <Flex display={{ base: 'flex', md: 'none' }}>
+        <Flex display={{ base: 'flex', md: 'none' }} ml={{ base: -2 }}>
           <IconButton
             onClick={onToggle}
             icon={isOpen ? <CloseIcon w={3} h={3} /> : <HamburgerIcon w={5} h={5} />}
             variant={'ghost'}
             aria-label={'Toggle Navigation'}
+            color={'gold'} // Gold icon
           />
         </Flex>
         
-        {/* Logo or brand text */}
-        <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }}>
+        <Flex flex={{ base: 1, md: 'auto' }} justify={{ base: 'center', md: 'start' }}>
           <Text
             textAlign={useBreakpointValue({ base: 'center', md: 'left' })}
             fontFamily={'heading'}
-            fontWeight={'bold'} // Set font weight to bold
-            fontSize={'xl'} // Set font size
+            fontWeight={'extrabold'}
+            fontSize={'xl'}
+            color={'gold'} // Gold text
           >
-            SkyLinker AeroPathways
+            SKYLINKER AEROPATHWAYS
           </Text>
         </Flex>
         
-        {/* Spacer to push the navigation to the right */}
-        <Spacer />
+        <Spacer display={{ base: 'none', md: 'flex' }} />
         
-        {/* Desktop menu items */}
-        <Flex display={{ base: 'none', md: 'flex' }}>
+        <Flex display={{ base: 'none', md: 'flex' }} ml={10}>
           <NavLink to="/">Home</NavLink>
           <NavLink to="/flightsearch">Flight Search</NavLink>
           <NavLink to="/airporttimetable">Airport Timetable</NavLink>
-          <NavLink to="/SearchByRoute">Search By Routes</NavLink> {/* Corrected spacing */}
-          <NavLink to="/HistoricalFlight">Flight schedules</NavLink> {/* Corrected spacing */}
-
+          <NavLink to="/SearchByRoute">Search By Routes</NavLink>
+          <NavLink to="/HistoricalFlight">Flight schedules</NavLink>
         </Flex>
         
-        {/* Account menu always on the right */}
-        <AccountMenu />
       </Flex>
 
-      {/* Mobile menu items */}
       <Collapse in={isOpen} animateOpacity>
         <Stack
-          bg={'skyblue'} // Ensure the mobile menu is also sky blue
+          bg={'rgba(0, 0, 0, 0.5)'} // Semi-transparent black background for mobile menu
           p={4}
           display={{ md: 'none' }}
         >
           <NavLink to="/">Home</NavLink>
           <NavLink to="/flightsearch">Flight Search</NavLink>
           <NavLink to="/airporttimetable">Airport Timetable</NavLink>
+          <NavLink to="/SearchByRoute">Search By Routes</NavLink>
+          <NavLink to="/HistoricalFlight">Flight schedules</NavLink>
         </Stack>
       </Collapse>
     </Box>

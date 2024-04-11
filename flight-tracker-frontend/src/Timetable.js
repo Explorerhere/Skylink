@@ -21,6 +21,7 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import { styled, useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import backgroundImage from './Assests/stenza.png'; // Ensure the path is correct
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
@@ -50,14 +51,85 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
+const SearchArea = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column', // Stack the search areas vertically
+  alignItems: 'center',
+  padding: theme.spacing(2),
+  background: 'rgba(255, 255, 255, 0.2)',
+  backdropFilter: 'blur(10px)',
+  borderRadius: theme.shape.borderRadius,
+  margin: theme.spacing(2, 0),
+}));
+
+const SearchFieldWrapper = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'row', // Align search components in a row
+  justifyContent: 'center', // Center horizontally
+  alignItems: 'center', // Center vertically
+  width: '100%', // Take the full width of the parent
+  padding: theme.spacing(1),
+  gap: theme.spacing(2), // Space between search components
+}));
+
+const SearchTextField = styled(TextField)(({ theme }) => ({
+  margin: theme.spacing(1),
+  '& .MuiInputBase-input': {
+    color: 'white', // Set the text color inside input to white
+  },
+  '& .MuiInputLabel-root': {
+    color: 'rgba(255, 255, 255, 0.7)', // Set label color to a lighter white
+  },
+  '& label.Mui-focused': {
+    color: '#87CEEB', // Keep the label color when focused
+  },
+  '& .MuiInput-underline:before': {
+    borderBottomColor: 'rgba(255, 255, 255, 0.7)', // Set the underline color before focus
+  },
+  '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+    borderBottomColor: 'rgba(255, 255, 255, 0.9)', // Set the underline color on hover
+  },
+  '& .MuiInput-underline:after': {
+    borderBottomColor: '#87CEEB', // Set the underline color after focus
+  },
+}));
+
+const SearchButton = styled(Button)(({ theme }) => ({
+  padding: theme.spacing(1),
+  backgroundColor: '#87CEEB',
+  color: 'white', // Button text color
+  '&:hover': {
+    backgroundColor: theme.palette.primary.dark,
+  },
+}));
 const StyledTextField = styled(TextField)({
-  margin: '10px 0',
-  width: '100%',
+  '& label.Mui-focused': {
+    color: '#87CEEB',
+  },
+  '& .MuiInput-underline:after': {
+    borderBottomColor: '#87CEEB',
+  },
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      borderColor: '#87CEEB',
+    },
+    '&:hover fieldset': {
+      borderColor: '#87CEEB',
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: '#87CEEB',
+    },
+  },
 });
 
-const SearchButton = styled(Button)({
-  margin: '10px 0',
-});
+const StyledSearchButton = styled(Button)(({ theme }) => ({
+  margin: theme.spacing(1),
+  backgroundColor: '#87CEEB',
+  color: theme.palette.getContrastText('#87CEEB'),
+  '&:hover': {
+    backgroundColor: theme.palette.primary.dark,
+  },
+}));
 
 function AirportTimetable() {
   const [airportCode, setAirportCode] = useState('');
@@ -75,90 +147,136 @@ function AirportTimetable() {
     try {
       const responseArrivals = await axios.get(`https://aviation-edge.com/v2/public/timetable`, {
         params: {
-          key: '51e895-9bde28', // Replace with your actual API key
+          key: 'f34fed-bff963',
           iataCode: airportCode,
           type: 'arrival',
         },
       });
       const responseDepartures = await axios.get(`https://aviation-edge.com/v2/public/timetable`, {
         params: {
-          key: '51e895-9bde28', // Replace with your actual API key
+          key: 'f34fed-bff963',
           iataCode: airportCode,
           type: 'departure',
         },
       });
-      setFlights({
-        arrivals: responseArrivals.data,
-        departures: responseDepartures.data,
-      });
+  
+      // Verify the data structure before setting state
+      if (Array.isArray(responseArrivals.data) && Array.isArray(responseDepartures.data)) {
+        setFlights({
+          arrivals: responseArrivals.data,
+          departures: responseDepartures.data,
+        });
+      } else {
+        // Set an appropriate error if the response is not as expected
+        setError('Please enter a valid IATA code');
+      }
     } catch (err) {
-      setError('Failed to fetch the timetable.');
+      // Provide a user-friendly error message
+      setError('Failed to fetch the timetable. Please check the IATA code and try again.');
       console.error(err);
     }
     setIsLoading(false);
   };
-
+  
   const handleSearch = () => {
-    fetchTimetable();
+    if (airportCode.trim()) {
+      fetchTimetable();
+    } else {
+      setError('Please enter a valid IATA code.');
+    }
   };
-
+  
   const handleFlightSearch = (event) => {
     setSearchTerm(event.target.value);
   };
+  
+    const filterFlights = (flightsList) =>
+  Array.isArray(flightsList) ? flightsList.filter((flight) =>
+    flight.flight.iataNumber.toLowerCase().includes(searchTerm.toLowerCase())
+  ) : [];
 
-  const filterFlights = (flightsList) =>
-    flightsList.filter((flight) =>
-      flight.flight.iataNumber.toLowerCase().includes(searchTerm.toLowerCase())
-    );
 
   return (
-    <Container>
-      <Typography variant="h4" gutterBottom>
-        Airport Timetable
-      </Typography>
-      <Box sx={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', alignItems: 'center', gap: 2 }}>
-        <StyledTextField
+    <Container maxWidth="lg">
+      <Box
+        sx={{
+          position: 'fixed',
+          left: 0,
+          right: 0,
+          top: 0,
+          bottom: 0,
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          zIndex: -1,
+          filter: 'blur(8px)',
+          WebkitFilter: 'blur(8px)',
+        }}
+      />
+      
+      <SearchArea>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-around',
+          alignItems: 'center',
+          width: '100%',
+          margin: 'auto',
+        }}
+      >
+        {/* Airport IATA Code TextField */}
+        <SearchTextField
           label="Airport IATA Code"
           variant="outlined"
           value={airportCode}
           onChange={(e) => setAirportCode(e.target.value.toUpperCase())}
+          InputProps={{
+            endAdornment: (
+              <IconButton onClick={handleSearch}>
+                <SearchIcon style={{ color: 'white' }} />
+              </IconButton>
+            ),
+          }}
+          sx={{
+            marginRight: 2, // Adjust space between fields if necessary
+            width: '45%', // Adjust width as necessary
+          }}
         />
-        <SearchButton
-          variant="contained"
-          color="primary"
-          onClick={handleSearch}
-          disabled={isLoading}
-          startIcon={isLoading ? <CircularProgress size={20} /> : <SearchIcon />}
-        >
-          {isLoading ? 'Loading...' : 'Search'}
-        </SearchButton>
+        {/* Search for a flight TextField */}
+        <SearchTextField
+          label="Search for a flight"
+          variant="outlined"
+          value={searchTerm}
+          onChange={handleFlightSearch}
+          InputProps={{
+            endAdornment: (
+              <IconButton onClick={() => setSearchTerm('')}>
+                <SearchIcon style={{ color: 'white' }} />
+              </IconButton>
+            ),
+          }}
+          sx={{
+            width: '45%', // Adjust width as necessary
+          }}
+        />
       </Box>
-      {error && <Typography color="error">{error}</Typography>}
-
-      <StyledTextField
-        label="Search for a flight"
-        variant="outlined"
-        value={searchTerm}
-        onChange={handleFlightSearch}
-        InputProps={{
-          endAdornment: (
-            <IconButton onClick={() => setSearchTerm('')}>
-              <SearchIcon />
-            </IconButton>
-          ),
-        }}
-      />
-
-      {/* Grid Layout for Tables */}
+    </SearchArea>
+    {error && (
+      <Box mt={2} mb={2}>
+        <Typography variant="subtitle1" color="error">
+          {error}
+        </Typography>
+      </Box>
+    )}
       <Grid container spacing={2}>
         <Grid item xs={12} md={6}>
-          <Typography variant="h6" gutterBottom>
+          <Typography variant="h6" gutterBottom style={{ color: 'white' }}>
             Departures
           </Typography>
           <RenderTable flights={filterFlights(flights.departures)} type="Departure" />
         </Grid>
         <Grid item xs={12} md={6}>
-          <Typography variant="h6" gutterBottom>
+          <Typography variant="h6" gutterBottom style={{ color: 'white' }}>
             Arrivals
           </Typography>
           <RenderTable flights={filterFlights(flights.arrivals)} type="Arrival" />
@@ -186,8 +304,8 @@ function RenderTable({ flights, type }) {
             <StyledTableRow key={index}>
               <StyledTableCell>{flight.flight.iataNumber}</StyledTableCell>
               <StyledTableCell align="right">{type === 'Departure' ? flight.arrival.iataCode : flight.departure.iataCode}</StyledTableCell>
-              <StyledTableCell align="right">{moment(type === 'Departure' ? flight.departure.scheduledTime : flight.arrival.scheduledTime).format('YYYY-MM-DD HH:mm')}</StyledTableCell>
-              <StyledTableCell align="right">{type === 'Departure' ? flight.departure.gate || 'N/A' : flight.arrival.gate || 'N/A'}</StyledTableCell>
+              <StyledTableCell align="right">{moment(flight[type.toLowerCase()].scheduledTime).format('YYYY-MM-DD HH:mm')}</StyledTableCell>
+              <StyledTableCell align="right">{flight[type.toLowerCase()].gate || 'N/A'}</StyledTableCell>
               <StyledTableCell align="right">{flight.status}</StyledTableCell>
             </StyledTableRow>
           ))}

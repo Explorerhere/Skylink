@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { TextField, Button, Card, CardContent, Typography } from '@mui/material';
+import { TextField, Button, Card, CardContent, Typography ,Box} from '@mui/material';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-
+import backgroundImage from './Assests/stenza.png'; // Ensure the path is correct
+import airportIconUrl from './Assests/landmark.png';
+import L from 'leaflet';
 // Define a theme for the application
 const theme = {
   palette: {
@@ -39,7 +41,12 @@ function AirportSearch() {
   const [airportDetails, setAirportDetails] = useState(null);
   const [error, setError] = useState('');
   const [userLocation, setUserLocation] = useState(null);
-
+  const airportIcon = new L.Icon({
+    iconUrl: airportIconUrl,
+    iconSize: [35, 35],
+    iconAnchor: [17, 35],
+    popupAnchor: [0, -35]
+  });
   const searchAirport = async () => {
     setError('');
     setAirportDetails(null);
@@ -66,14 +73,32 @@ function AirportSearch() {
     }
   };
   return (
-    <div style={{ padding: '20px' }}>
-      <TextField
-        label="Search by Airport or Location"
-        variant="outlined"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        fullWidth
+    <Box sx={{ flexGrow: 1, position: 'relative' }}>
+    <Box
+        sx={{
+          position: 'fixed',
+          left: 0,
+          right: 0,
+          top: 0,
+          bottom: 0,
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          zIndex: -1,
+          filter: 'blur(8px)',
+          WebkitFilter: 'blur(8px)',
+        }}
       />
+    <div style={{ padding: '20px',color:'white' }}>
+    <TextField
+  label="Search by Airport or Location"
+  variant="outlined"
+  value={query}
+  onChange={(e) => setQuery(e.target.value)}
+  fullWidth
+  style={{ background: 'rgba(255, 255, 255, 0.8)', borderRadius: '10px',backdropFilter: 'blur(5px)' }} // assuming you want 80% opacity
+/>
+
       <Button variant="contained" color="primary" onClick={searchAirport} style={{ marginTop: '10px' }}>
         Search
       </Button>
@@ -106,18 +131,22 @@ function AirportSearch() {
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                             />
-                            <Marker position={[airportDetails.location.coordinates[1], airportDetails.location.coordinates[0]]}>
-                                <Popup>
-                                    {airportDetails.name} ({airportDetails.code})<br />
-                                    {airportDetails.city}, {airportDetails.country_id}<br />
-                                    Elevation: {airportDetails.elevation}m
-                                </Popup>
-                            </Marker>
+                            <Marker
+  position={[airportDetails.location.coordinates[1], airportDetails.location.coordinates[0]]}
+  icon={airportIcon}
+>
+  <Popup>
+    {airportDetails.name} ({airportDetails.code})<br />
+    {airportDetails.city}, {airportDetails.country_id}<br />
+    Elevation: {airportDetails.elevation}m
+  </Popup>
+</Marker>
                         </MapContainer>
                     </div>
                 </>
             )}
         </div>
+        </Box>
     );
 }
 
